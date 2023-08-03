@@ -1,0 +1,67 @@
+---
+########################################################
+
+# Download resources
+
+########################################################
+- name: 'Create installation dir'
+  ansible.builtin.file:
+    path: ~/{{ install_dir }}
+    state: directory
+    mode: '0755'
+
+- name: oc-client binary
+  become: yes
+  ansible.builtin.unarchive:
+    src: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-{{ ocp_version }}/openshift-client-linux.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: OpenShift-install binary
+  become: yes 
+  ansible.builtin.unarchive:
+    src: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-{{ ocp_version }}/openshift-install-linux.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: govc binary
+  become: yes
+  ansible.builtin.unarchive:
+    src: https://github.com/vmware/govmomi/releases/latest/download/govc_{{ platform }}_{{ arc }}.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: get govc configurations
+  template:
+    src: govc.j2
+    dest: ~/{{ install_dir }}/govc.conf
+
+#upload ova template to vcenter 
+- name: copy ova parameters to upload 
+  template: 
+   src: option.j2
+   dest: ~/{{ install_dir }}/option.json
+   mode: u=rwx,g=rwx,o=rwx
+
+- name: copy ova file from src
+  copy:
+   src: ../../../src/{{ ova_name }} 
+   dest: ~/{{ install_dir }}/image.ova
+
+   #- name: upload ova in src dir to vcenter
+   #shell: source ~/{{ install_dir }}/govc.conf;cd ~/{{ install_dir }};govc import.ova --folder={{ vcenter_folder }} --options=option.json --name=coreostest image.ova
+
+#Create required VMs
+#bootstrap
+#- name: create bootstrap machine
+#  shell: source ~/{{ install_dir }}/govc.conf && govc vm.clone -on=false -vm coreostest -annotation={{ bootstrap_label }} -c {{ bootstrap_cpu }} -m {{ bootstrap_memory }} -folder={{ vcenter_folder }} {{ bootstrap_name }}
+
+#master
+#- name: Add controlplane servers
+#  shell: source ~/{{ install_dir }}/govc.conf &&  govc vm.clone -on=false -vm coreostest -annotation={{ master_label }} -c {{ master_cpu }} -m {{ master_memory }} -folder={{ vcenter_folder }} "{{ item }}"
+#  loop: '{{ masterlist }}'
+
+#workers
+- name: Add worker servers
+  shell: source ~/{{ install_dir }}/govc.conf &&  govc vm.clone -on=false -vm coreostest -annotation={{ worker_label }} -c {{ worker_cpu }} -m {{ worker_memory }} -folder={{ vcenter_folder }} "{{ item }}"
+  loop: '{{ workerlist }}'

@@ -1,0 +1,42 @@
+---
+ocp_version: '4.12'
+install_dir: 'wael-ocp'
+platform: 'Linux'
+arc: 'x86_64'
+
+# vcenter
+vcenter_url: 'ocpgym-vc.techzone.ibm.local'
+vcenter_user: 'gymuser-jqq5lhx0@techzone.ibm.local'
+vcenter_pass: 'XUZb5wC1'
+vcenter_datastore: 'gym-665000ngm4-jqq5lhx0-storage'
+vcenter_datacenter: 'IBMCloud'
+vcenter_network: 'gym-665000ngm4-jqq5lhx0-segment'
+vcenter_folder: '/IBMCloud/vm/ocp-gym/gym-665000ngm4-jqq5lhx0'
+ova_name: 'rhcos-vmware.x86_64.ova'
+
+# nodes
+# bootstrap:
+bootstrap_label: 'BootStrap'
+bootstrap_name: 'bootstrap01'
+bootstrap_cpu: '4'
+bootstrap_memory: '16384'
+
+# masters:
+master_label: 'ControlPlane'
+master_cpu: '4'
+master_memory: '16384'
+masterlist:
+     - master01
+     - master02
+     - master03
+
+
+# workers:
+no_of_workers: '3'
+worker_label: 'WorkerNodes'
+worker_cpu: '4'
+worker_memory: '16384'
+workerlist: 
+   - worker01
+   - worker02
+   - worker03
